@@ -1,0 +1,18 @@
+[package]
+name = "wardline-guards"
+description = "Built-in reference Guard implementations for Wardline (regex, rate limit, PII, LLM heuristics)."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+categories.workspace = true
+keywords.workspace = true
+readme = "../../README.md"
+
+[dependencies]
+
+[lints]
+workspace = true

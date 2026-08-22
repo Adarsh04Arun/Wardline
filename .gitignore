@@ -1,0 +1,27 @@
+# Rust build artifacts
+/target/
+**/*.rs.bk
+*.pdb
+
+# cargo-fuzz
+/fuzz/target/
+/fuzz/corpus/
+/fuzz/artifacts/
+/fuzz/coverage/
+
+# Criterion benchmark output
+/target/criterion/
+
+# Lockfile: kept for the workspace (this repo ships binaries/examples too)
+# so CI is reproducible. Do not ignore Cargo.lock here.
+
+# Editors / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Local-only source material for the docs in docs/ — kept on disk for
+# reference, deliberately not published to the repo.
+/files (1)/
