@@ -1,13 +1,101 @@
 //! Core vocabulary and execution engine for Wardline.
 //!
-//! This crate defines the `Guard` trait, the verdict/fail-policy types every
-//! guard speaks in, and the synchronous pipeline executor that runs guards in
-//! order, short-circuits on the first block, and isolates panics.
+//! Wardline evaluates guardrails inline and synchronously, in the caller's
+//! request path: a check returns a blocking verdict *before* an action is
+//! taken or an LLM response is released. No queue, no separate service, no
+//! async runtime — a blocked action never happens rather than being detected
+//! shortly after it did.
 //!
-//! It depends on nothing outside `std` by design: the core must stay
-//! embeddable in any process without dragging in an async runtime or an HTTP
-//! client. See `docs/IMPLEMENTATION_PLAN.md` — the contents below land in
-//! Phase 1 (types) and Phase 2 (pipeline).
+//! | Type | Role |
+//! |---|---|
+//! | [`Guard`] | One check. The trait you implement. |
+//! | [`Verdict`] | What a guard decided: allow, block, or modify. |
+//! | [`GuardError`] | Why a guard reached no decision at all. |
+//! | [`FailPolicy`] | What the pipeline does about that failure. |
+//! | [`Context`] | Per-request metadata and the deadline. |
+//! | [`Deadline`] | A cooperative wall-clock bound. |
+//!
+//! The key distinction: [`Verdict::Block`] means the guard said *no*;
+//! [`GuardError`] means it said *nothing*. Failures are resolved by the
+//! failing guard's own [`FailPolicy`], which defaults to
+//! [`FailPolicy::FailClosed`], so a broken guard doesn't silently stop
+//! guarding.
+//!
+//! The pipeline executor lands in Phase 2 of `docs/IMPLEMENTATION_PLAN.md`;
+//! the types here are complete. This crate depends on nothing outside `std` —
+//! see `AGENTS.md` for the full set of architectural invariants.
+//!
+//! # Example
+//!
+//! ```
+//! use wardline_core::{Context, Guard, GuardError, Verdict};
+//!
+//! struct NoProfanity;
+//!
+//! impl Guard for NoProfanity {
+//!     type Input = str;
+//!     type Output = ();
+//!
+//!     fn check(&self, input: &str, _ctx: &Context) -> Result<Verdict, GuardError> {
+//!         if input.contains("darn") {
+//!             return Ok(Verdict::block("profanity detected"));
+//!         }
+//!         Ok(Verdict::Allow)
+//!     }
+//!
+//!     fn name(&self) -> &'static str {
+//!         "no_profanity"
+//!     }
+//! }
+//!
+//! let ctx = Context::new();
+//! assert_eq!(NoProfanity.check("hello there", &ctx), Ok(Verdict::Allow));
+//! assert!(NoProfanity.check("well darn", &ctx).is_ok_and(|v| v.is_block()));
+//! ```
 
 #![forbid(unsafe_code)]
 #![deny(missing_docs)]
+
+mod context;
+mod deadline;
+mod error;
+mod guard;
+mod policy;
+mod verdict;
+
+pub use context::{Context, Value};
+pub use deadline::Deadline;
+pub use error::GuardError;
+pub use guard::Guard;
+pub use policy::FailPolicy;
+pub use verdict::Verdict;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::panic::RefUnwindSafe;
+
+    /// The pipeline borrows a `Context` across a `catch_unwind` boundary
+    /// (Phase 4.5). Asserting the bound here means a future field breaks this
+    /// test rather than the pipeline.
+    #[test]
+    fn context_survives_the_catch_unwind_boundary() {
+        fn assert_unwind_safe<T: RefUnwindSafe>() {}
+        assert_unwind_safe::<Context>();
+        assert_unwind_safe::<Deadline>();
+        assert_unwind_safe::<Value>();
+    }
+
+    /// A pipeline is shared across request threads, so what travels with it
+    /// must be `Send + Sync`.
+    #[test]
+    fn public_types_are_thread_safe() {
+        fn assert_send_sync<T: Send + Sync>() {}
+        assert_send_sync::<Context>();
+        assert_send_sync::<Deadline>();
+        assert_send_sync::<FailPolicy>();
+        assert_send_sync::<GuardError>();
+        assert_send_sync::<Value>();
+        assert_send_sync::<Verdict<String>>();
+    }
+}
