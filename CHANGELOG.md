@@ -12,6 +12,21 @@ critical path can find them without reading every line.
 
 ### Added
 
+- `wardline-core`: the core vocabulary — `Guard` (the trait to implement),
+  `Verdict` (allow / block / modify), `GuardError`, `FailPolicy`, `Context`,
+  `Deadline`, and `Value`. Types only; the pipeline executor is Phase 2. The
+  crate has no dependencies outside `std` (implementation plan Phase 1).
+
+### Reliability
+
+- `FailPolicy::FailClosed` is the default for every guard, and a guard's
+  failure is resolved by its own policy — the pipeline will never apply a
+  workspace-wide default silently.
+- `Guard` carries a `RefUnwindSafe` bound from its first release, so adding
+  `catch_unwind` panic isolation in Phase 4.5 is not a breaking change.
+- `GuardError` is `#[non_exhaustive]`, so new failure modes can be added
+  without a major bump. Match with a wildcard arm.
+
 - Workspace scaffolding: `wardline-core`, `wardline-guards`, `wardline-http`,
   and `wardline-llm` crate skeletons, dual MIT/Apache-2.0 licensing, contributor
   docs, and a CI workflow running fmt, clippy, test, MSRV, and rustdoc
