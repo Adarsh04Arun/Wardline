@@ -14,6 +14,8 @@
 //! | [`FailPolicy`] | What the pipeline does about that failure. |
 //! | [`Context`] | Per-request metadata and the deadline. |
 //! | [`Deadline`] | A cooperative wall-clock bound. |
+//! | [`Pipeline`] | An ordered list of guards, run in place. |
+//! | [`Trace`] | The bounded record of what each guard did. |
 //!
 //! The key distinction: [`Verdict::Block`] means the guard said *no*;
 //! [`GuardError`] means it said *nothing*. Failures are resolved by the
@@ -21,9 +23,10 @@
 //! [`FailPolicy::FailClosed`], so a broken guard doesn't silently stop
 //! guarding.
 //!
-//! The pipeline executor lands in Phase 2 of `docs/IMPLEMENTATION_PLAN.md`;
-//! the types here are complete. This crate depends on nothing outside `std` —
-//! see `AGENTS.md` for the full set of architectural invariants.
+//! [`Pipeline::evaluate`] runs guards in order, stops at the first block, and
+//! returns the decision together with its [`Trace`] — so a caller can log
+//! *why* something was refused, not just that it was. This crate depends on
+//! nothing outside `std`; see `AGENTS.md` for the architectural invariants.
 //!
 //! # Example
 //!
@@ -60,14 +63,18 @@ mod context;
 mod deadline;
 mod error;
 mod guard;
+mod pipeline;
 mod policy;
+mod trace;
 mod verdict;
 
 pub use context::{Context, Value};
 pub use deadline::Deadline;
 pub use error::GuardError;
 pub use guard::Guard;
+pub use pipeline::{Pipeline, PipelineResult};
 pub use policy::FailPolicy;
+pub use trace::{Trace, TraceEntry, TraceOutcome};
 pub use verdict::Verdict;
 
 #[cfg(test)]
@@ -95,7 +102,11 @@ mod tests {
         assert_send_sync::<Deadline>();
         assert_send_sync::<FailPolicy>();
         assert_send_sync::<GuardError>();
+        assert_send_sync::<Trace>();
+        assert_send_sync::<TraceEntry>();
+        assert_send_sync::<TraceOutcome>();
         assert_send_sync::<Value>();
         assert_send_sync::<Verdict<String>>();
+        assert_send_sync::<PipelineResult<String>>();
     }
 }
