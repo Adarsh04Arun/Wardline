@@ -12,6 +12,14 @@ critical path can find them without reading every line.
 
 ### Added
 
+- `wardline-core`: `Pipeline`, the synchronous executor. It runs guards in the
+  order they were added, stops at the first `Verdict::Block`, and returns a
+  `PipelineResult` carrying the decision alongside the `Trace` of every guard
+  that ran — so a caller can log why a request was refused, not just that it
+  was (implementation plan Phase 2).
+- `wardline-core`: `Trace`, `TraceEntry`, and `TraceOutcome` — the per-guard
+  audit record, with a hard cap on retained entries.
+
 - `wardline-core`: the core vocabulary — `Guard` (the trait to implement),
   `Verdict` (allow / block / modify), `GuardError`, `FailPolicy`, `Context`,
   `Deadline`, and `Value`. Types only; the pipeline executor is Phase 2. The
@@ -19,6 +27,17 @@ critical path can find them without reading every line.
 
 ### Reliability
 
+- A guard that declares a `timeout()` is bounded by it: the pipeline stops
+  waiting and reports `GuardError::Timeout`. This bounds the *caller's* wait,
+  not the guard — abandoned work keeps running on its own thread. A `strict()`
+  guard is never abandoned; it runs inline and reports
+  `GuardError::DeadlineViolated` if it overruns.
+- `FailPolicy::FailClosedWithFallback` with no fallback registered on the
+  pipeline halts as plain fail-closed. A missing fallback is never read as
+  permission to continue.
+- The trace has a hard entry cap (`Trace::DEFAULT_CAPACITY`, 64) and clamps
+  block reasons, so memory use is flat regardless of pipeline length. A
+  truncated trace reports how many entries it dropped.
 - `FailPolicy::FailClosed` is the default for every guard, and a guard's
   failure is resolved by its own policy — the pipeline will never apply a
   workspace-wide default silently.
@@ -32,4 +51,4 @@ critical path can find them without reading every line.
   docs, and a CI workflow running fmt, clippy, test, MSRV, and rustdoc
   (implementation plan Phase 0).
 
-[Unreleased]: https://github.com/adarsh4arun/wardline/compare/HEAD...HEAD
+[Unreleased]: https://github.com/Adarsh04Arun/Wardline/compare/HEAD...HEAD
