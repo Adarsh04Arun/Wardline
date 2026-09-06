@@ -13,6 +13,10 @@ keywords.workspace = true
 readme = "../../README.md"
 
 [dependencies]
+wardline-core.workspace = true
+# Specified by implementation-plan Phase 3. The crate uses unsafe internally;
+# this crate still forbids it in our own code.
+regex = "1.11"
 
 [lints]
 workspace = true

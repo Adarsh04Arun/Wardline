@@ -1,11 +1,23 @@
 //! Built-in reference guards for Wardline.
 //!
 //! Deliberately few and dependency-light: enough to prove the
-//! `wardline_core::Guard` trait works for both general application actions
+//! [`wardline_core::Guard`] trait works for both general application actions
 //! and LLM calls, not a comprehensive guard library. Nothing here pulls in an
 //! async runtime or a network client.
 //!
-//! Guards land here in Phase 3 of `docs/IMPLEMENTATION_PLAN.md`.
+//! All text guards use `Input = str` and `Output = String`, so they compose
+//! in one [`wardline_core::Pipeline`].
+//!
+//! | Type | Role |
+//! |---|---|
+//! | [`RegexBlockGuard`] | Block on a pattern match. |
+//! | [`RegexRedactGuard`] | Rewrite matches and return [`Verdict::Modify`]. |
+//!
+//! [`Verdict::Modify`]: wardline_core::Verdict::Modify
 
 #![forbid(unsafe_code)]
 #![deny(missing_docs)]
+
+mod regex_filter;
+
+pub use regex_filter::{RegexBlockGuard, RegexRedactGuard};
