@@ -23,6 +23,7 @@ keywords = ["guardrails", "llm", "safety", "policy", "middleware"]
 [workspace.dependencies]
 wardline-core = { version = "0.1.0", path = "crates/wardline-core" }
 wardline-guards = { version = "0.1.0", path = "crates/wardline-guards" }
+wardline-llm = { version = "0.1.0", path = "crates/wardline-llm" }
 
 # `unsafe_code = forbid` and `missing_docs = deny` live as crate-root
 # attributes instead (see AGENTS.md invariant 7) so they are visible in the

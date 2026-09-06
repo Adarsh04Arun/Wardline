@@ -1,6 +1,6 @@
 [package]
 name = "wardline-llm"
-description = "Wraps a blocking LLM client call with Wardline input/output pipelines."
+description = "Wraps a blocking LLM client call with Wardline input and output pipelines."
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -13,6 +13,7 @@ keywords.workspace = true
 readme = "../../README.md"
 
 [dependencies]
+wardline-core.workspace = true
 
 [lints]
 workspace = true
