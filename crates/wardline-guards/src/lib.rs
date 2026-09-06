@@ -14,6 +14,7 @@
 //! | [`RegexRedactGuard`] | Rewrite matches and return [`Verdict::Modify`]. |
 //! | [`RateLimitGuard`] | In-process token bucket, keyed from [`Context`]. |
 //! | [`PiiGuard`] | Baseline email / phone / SSN detector — not compliance-grade. |
+//! | [`PromptInjectionGuard`] | Cheap jailbreak-phrase heuristic. |
 //!
 //! [`Verdict::Modify`]: wardline_core::Verdict::Modify
 //! [`Context`]: wardline_core::Context
@@ -21,10 +22,12 @@
 #![forbid(unsafe_code)]
 #![deny(missing_docs)]
 
+pub mod llm;
 mod pii;
 mod rate_limit;
 mod regex_filter;
 
+pub use llm::PromptInjectionGuard;
 pub use pii::{PiiAction, PiiGuard};
 pub use rate_limit::{DEFAULT_MAX_KEYS, RateLimitGuard};
 pub use regex_filter::{RegexBlockGuard, RegexRedactGuard};
