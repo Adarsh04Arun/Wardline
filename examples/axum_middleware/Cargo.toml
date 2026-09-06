@@ -1,0 +1,18 @@
+[package]
+name = "axum_middleware"
+description = "Axum example using the wardline-http tower layer."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["http1", "tokio"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net"] }
+wardline-core.workspace = true
+wardline-guards.workspace = true
+wardline-http.workspace = true
+
+[lints]
+workspace = true
