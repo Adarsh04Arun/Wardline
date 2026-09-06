@@ -1,0 +1,16 @@
+[package]
+name = "sync_http_server"
+description = "Zero-async Wardline HTTP example using tiny_http."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+tiny_http = "0.12"
+wardline-core.workspace = true
+wardline-guards.workspace = true
+
+[lints]
+workspace = true

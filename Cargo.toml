@@ -7,6 +7,9 @@ members = [
     "crates/wardline-guards",
     "crates/wardline-http",
     "crates/wardline-llm",
+    "examples/sync_http_server",
+    "examples/axum_middleware",
+    "examples/llm_chat_guard",
 ]
 
 [workspace.package]
@@ -23,6 +26,8 @@ keywords = ["guardrails", "llm", "safety", "policy", "middleware"]
 [workspace.dependencies]
 wardline-core = { version = "0.1.0", path = "crates/wardline-core" }
 wardline-guards = { version = "0.1.0", path = "crates/wardline-guards" }
+wardline-http = { version = "0.1.0", path = "crates/wardline-http" }
+wardline-llm = { version = "0.1.0", path = "crates/wardline-llm" }
 
 # `unsafe_code = forbid` and `missing_docs = deny` live as crate-root
 # attributes instead (see AGENTS.md invariant 7) so they are visible in the
