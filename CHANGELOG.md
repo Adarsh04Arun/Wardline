@@ -12,6 +12,12 @@ critical path can find them without reading every line.
 
 ### Added
 
+- `wardline-guards`: reference implementations — `RegexBlockGuard`,
+  `RegexRedactGuard`, an in-process `RateLimitGuard`, a baseline `PiiGuard`
+  (not compliance-grade), a heuristic `PromptInjectionGuard`, and
+  `ClassifierAdapter` so an external model can be plugged in as a `Guard`
+  without this crate hosting one (implementation plan Phase 3).
+
 - `wardline-core`: `Pipeline`, the synchronous executor. It runs guards in the
   order they were added, stops at the first `Verdict::Block`, and returns a
   `PipelineResult` carrying the decision alongside the `Trace` of every guard

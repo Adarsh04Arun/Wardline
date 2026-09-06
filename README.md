@@ -5,9 +5,10 @@
 [![CI](https://github.com/adarsh4arun/wardline/actions/workflows/ci.yml/badge.svg)](https://github.com/adarsh4arun/wardline/actions/workflows/ci.yml)
 [![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](#license)
 
-> **Status: pre-alpha, Phase 0.** The repo scaffolding is in place; the core
-> types and pipeline are not implemented yet. Not published to crates.io.
-> Follow `docs/IMPLEMENTATION_PLAN.md` for what lands when.
+> **Status: pre-alpha, Phase 3.** Core types, the synchronous pipeline, and
+> the built-in reference guards are in place. Integration adapters are next.
+> Not published to crates.io. Follow `docs/IMPLEMENTATION_PLAN.md` for what
+> lands when.
 
 Guards run **inline in your request path** — before an action is taken or an
 LLM response is released — and return a blocking verdict: allow, block, or
