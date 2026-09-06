@@ -62,6 +62,7 @@ project exists. Do not "fix" them without a discussion in an issue first.
 | `crates/wardline-llm/` | Wraps an LLM call (via `reqwest::blocking`) with input/output pipelines. |
 | `examples/sync_http_server/` | Primary reference example — zero async anywhere in the stack. |
 | `examples/axum_middleware/` | Secondary example for teams already on an async framework. |
+| `examples/llm_chat_guard/` | Guard a prompt and reply around a blocking model call. |
 | `fuzz/` | `cargo-fuzz` targets for the pipeline executor. Run manually/periodically, not gating every PR. |
 | `tests/integration/` | Cross-crate behavior tests, especially fail-policy, timeout, and panic-isolation edge cases. |
 | `docs/RESEARCH.md` | Why this project exists, prior art, honest limitations. Update if positioning changes. |

@@ -12,6 +12,17 @@ critical path can find them without reading every line.
 
 ### Added
 
+- `wardline-http`: `tower::Layer` that buffers a request body and runs a
+  Wardline pipeline synchronously inside axum. This crate is the one
+  deliberate async boundary; evaluation itself is still blocking
+  (implementation plan Phase 4).
+- `wardline-llm`: `guarded_prompt` — input pipeline, blocking model call,
+  output pipeline. An input block never calls the model; an output block
+  never returns the reply.
+- Examples: `sync_http_server` (tiny_http, zero async), `axum_middleware`,
+  and `llm_chat_guard`. `cargo run -p <example>` prints an allow and a
+  block without binding a port.
+
 - `wardline-guards`: reference implementations — `RegexBlockGuard`,
   `RegexRedactGuard`, an in-process `RateLimitGuard`, a baseline `PiiGuard`
   (not compliance-grade), a heuristic `PromptInjectionGuard`, and
