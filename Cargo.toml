@@ -9,6 +9,7 @@ members = [
     "crates/wardline-llm",
     "examples/sync_http_server",
     "examples/axum_middleware",
+    "examples/llm_chat_guard",
 ]
 
 [workspace.package]

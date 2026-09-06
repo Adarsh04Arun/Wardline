@@ -1,0 +1,17 @@
+[package]
+name = "llm_chat_guard"
+description = "Guard an LLM prompt and reply with Wardline. Default model is a stub; --http uses reqwest::blocking."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "rustls-tls"] }
+wardline-core.workspace = true
+wardline-guards.workspace = true
+wardline-llm.workspace = true
+
+[lints]
+workspace = true
