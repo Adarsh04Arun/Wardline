@@ -56,19 +56,23 @@ project exists. Do not "fix" them without a discussion in an issue first.
 
 | Path | Purpose |
 |---|---|
-| `crates/wardline-core/` | Trait, Verdict, FailPolicy, Deadline, Pipeline, panic isolation, bounded trace. Zero-dependency by design. |
+| `crates/wardline-core/` | Trait, Verdict, FailPolicy, Deadline, Pipeline, panic isolation, bounded trace, optional `tracing` feature, `Metrics`. Zero *required* dependencies; `tracing` is feature-gated. |
 | `crates/wardline-guards/` | Built-in reference guards (regex, rate limit, PII, LLM heuristics). |
 | `crates/wardline-http/` | tower/axum integration — the one place an async boundary is expected. |
 | `crates/wardline-llm/` | Wraps an LLM call (via `reqwest::blocking`) with input/output pipelines. |
 | `examples/sync_http_server/` | Primary reference example — zero async anywhere in the stack. |
 | `examples/axum_middleware/` | Secondary example for teams already on an async framework. |
 | `examples/llm_chat_guard/` | Guard a prompt and reply around a blocking model call. |
+| `examples/observability/` | `tracing` spans and `Metrics` counters, including a caught panic. |
 | `fuzz/` | `cargo-fuzz` targets for the pipeline executor. Run manually/periodically, not gating every PR. |
 | `tests/integration/` | Cross-crate behavior tests, especially fail-policy, timeout, and panic-isolation edge cases. |
 | `docs/RESEARCH.md` | Why this project exists, prior art, honest limitations. Update if positioning changes. |
 | `docs/ARCHITECTURE.md` | Design rationale for fail-policy/timeout/panic-isolation decisions. |
 | `docs/RELIABILITY.md` | The explicit reliability contract — what's guaranteed, what isn't, and the test backing each guarantee. |
 | `docs/IMPLEMENTATION_PLAN.md` | Phased build plan — check which phase is active before adding scope. |
+| `docs/PAPER_TITLES.md` | Curated taxonomy of IEEE paper titles and venue recommendations. |
+| `docs/IEEE_RESEARCH_PAPER.md` | Primary manuscript (Systems & Guardrail Trilemma perspective). |
+| `docs/IEEE_RESEARCH_PAPER_V2.md` | Secondary manuscript (Formal Methods, Pre-Action Invariants & Safety Shields perspective). |
 
 When you touch a file, keep this table accurate. If you add a new crate or
 move something, update this file in the same change.

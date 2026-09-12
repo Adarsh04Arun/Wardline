@@ -1,0 +1,23 @@
+[package]
+name = "wardline-fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+wardline-core = { path = "../crates/wardline-core" }
+
+[[bin]]
+name = "pipeline_fuzz"
+path = "fuzz_targets/pipeline_fuzz.rs"
+test = false
+doc = false
+bench = false
+
+# Isolated so `cargo test --workspace` on the main repo never builds libfuzzer.
+[workspace]
+members = ["."]

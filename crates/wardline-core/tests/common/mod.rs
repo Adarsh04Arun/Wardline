@@ -121,3 +121,7 @@ pub fn modify() -> Result<Verdict<String>, GuardError> {
 pub fn fail() -> Result<Verdict<String>, GuardError> {
     Err(GuardError::dependency("classifier unreachable"))
 }
+
+pub fn boom() -> Result<Verdict<String>, GuardError> {
+    panic!("deliberate test panic");
+}

@@ -40,12 +40,14 @@ Before marking a PR ready for review:
 
 - [ ] `cargo fmt --all --check` passes
 - [ ] `cargo clippy --workspace --all-targets -- -D warnings` passes
-- [ ] `cargo test --workspace` passes
+- [ ] `cargo test --workspace --all-features` passes
 - [ ] `cargo doc --workspace --no-deps` builds with no warnings
+- [ ] `cargo deny check` and `cargo audit` pass
 - [ ] New public items have doc comments (`#![deny(missing_docs)]` enforces this)
 - [ ] New `Guard` impls have unit tests for allow, block/modify, and their
       declared `fail_policy()`
-- [ ] Changes to `pipeline.rs` have an integration test in `tests/integration/`
+- [ ] Changes to `pipeline.rs` have an integration test under
+      `crates/wardline-core/tests/`
 - [ ] `CHANGELOG.md` updated under `Unreleased` for user-facing changes
 - [ ] The PR description names the implementation-plan phase it belongs to
 

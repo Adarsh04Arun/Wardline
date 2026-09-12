@@ -5,10 +5,10 @@
 [![CI](https://github.com/adarsh4arun/wardline/actions/workflows/ci.yml/badge.svg)](https://github.com/adarsh4arun/wardline/actions/workflows/ci.yml)
 [![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](#license)
 
-> **Status: pre-alpha, Phase 4.** Core types, the pipeline, built-in
-> guards, and the HTTP/LLM adapters are in place. Reliability hardening is
-> next. Not published to crates.io. Follow `docs/IMPLEMENTATION_PLAN.md`
-> for what lands when.
+> **Status: pre-alpha, Phase 5.** Core types, the pipeline, built-in
+> guards, HTTP/LLM adapters, panic isolation, and optional tracing/metrics
+> are in place. Not published to crates.io. Follow
+> `docs/IMPLEMENTATION_PLAN.md` for what lands when.
 
 Guards run **inline in your request path** — before an action is taken or an
 LLM response is released — and return a blocking verdict: allow, block, or
@@ -41,7 +41,7 @@ request ──▶ Pipeline::evaluate() ──▶ Verdict::Allow  ──▶ actio
 
 | Crate | Purpose |
 |---|---|
-| `crates/wardline-core` | `Guard` trait, `Verdict`, `FailPolicy`, `Deadline`, the pipeline executor, panic isolation, bounded audit trace. |
+| `crates/wardline-core` | `Guard` trait, `Verdict`, `FailPolicy`, `Deadline`, the pipeline executor, panic isolation, bounded audit trace, optional `tracing` feature and `Metrics`. |
 | `crates/wardline-guards` | Built-in reference guards (regex, rate limit, PII, LLM heuristics). |
 | `crates/wardline-http` | Optional tower/axum middleware — the one async boundary. |
 | `crates/wardline-llm` | Wraps a blocking LLM client call with input/output pipelines. |
@@ -50,9 +50,11 @@ request ──▶ Pipeline::evaluate() ──▶ Verdict::Allow  ──▶ actio
 
 - `docs/RESEARCH.md` — positioning, prior art, honest gap analysis
 - `docs/IMPLEMENTATION_PLAN.md` — the phased build plan
+- `docs/RELIABILITY.md` — what is guaranteed, what is not, and the test
+  that backs each guarantee
 - `AGENTS.md` — conventions and architectural invariants for contributors
   (human or AI)
-- `docs/ARCHITECTURE.md` and `docs/RELIABILITY.md` — land in later phases
+- `docs/ARCHITECTURE.md` — lands in a later phase
 
 ## Quickstart
 
@@ -67,15 +69,18 @@ That prints one allow and one block (`PromptInjectionGuard`), then exits.
 what guard fired and why.
 
 Already on axum? `cargo run -p axum_middleware`. Wrapping an LLM call?
-`cargo run -p llm_chat_guard`.
+`cargo run -p llm_chat_guard`. Structured spans and a caught panic?
+`cargo run -p observability`.
 
 ## Building
 
 ```sh
 cargo build --workspace
-cargo test --workspace
-cargo clippy --workspace --all-targets -- -D warnings
+cargo test --workspace --all-features
+cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo fmt --all --check
+cargo deny check
+cargo audit
 ```
 
 Minimum supported Rust version: **1.85**.

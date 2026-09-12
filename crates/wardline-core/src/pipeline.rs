@@ -1,10 +1,41 @@
 //! The synchronous, short-circuiting evaluator that runs a list of guards.
 
+use crate::observe::{self, GuardSpan};
 use crate::{Context, FailPolicy, Guard, GuardError, Trace, TraceEntry, TraceOutcome, Verdict};
 use core::fmt;
+use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::sync::Arc;
 use std::sync::mpsc::{self, RecvTimeoutError};
 use std::time::{Duration, Instant};
+
+/// Recovers a panic payload as a string for [`GuardError::Panicked`].
+fn panic_message(payload: Box<dyn std::any::Any + Send>) -> String {
+    match payload.downcast::<String>() {
+        Ok(message) => *message,
+        Err(payload) => match payload.downcast::<&'static str>() {
+            Ok(message) => (*message).to_owned(),
+            Err(_) => "unknown panic payload".to_owned(),
+        },
+    }
+}
+
+/// Runs `guard.check`, converting a panic into [`GuardError::Panicked`].
+///
+/// This is the backstop that keeps a misbehaving guard from unwinding past
+/// [`Pipeline::evaluate`]. Guard authors still must not panic.
+fn invoke_check<In, Out>(
+    guard: &dyn Guard<Input = In, Output = Out>,
+    input: &In,
+    ctx: &Context,
+) -> Result<Verdict<Out>, GuardError>
+where
+    In: ?Sized,
+{
+    match catch_unwind(AssertUnwindSafe(|| guard.check(input, ctx))) {
+        Ok(result) => result,
+        Err(payload) => Err(GuardError::panicked(panic_message(payload))),
+    }
+}
 
 /// A caller-supplied verdict for [`FailPolicy::FailClosedWithFallback`].
 ///
@@ -236,7 +267,18 @@ where
     /// handing owned, shared data to that thread is the only way to bound the
     /// wait without `unsafe` or copying the input per guard. Guards still see
     /// a plain `&In`.
+    ///
+    /// Every `check` is wrapped in [`catch_unwind`]. A panic becomes
+    /// [`GuardError::Panicked`] and is resolved through that guard's
+    /// [`FailPolicy`]; it never unwinds out of this method.
+    ///
+    /// Enable the `tracing` feature to emit a `wardline.evaluate` span and a
+    /// `wardline.guard` span (plus a `guard panicked` error event) for each
+    /// check.
+    ///
+    /// [`catch_unwind`]: std::panic::catch_unwind
     pub fn evaluate(&self, input: &Arc<In>, ctx: &Context) -> PipelineResult<Out> {
+        let _eval = observe::enter_evaluate();
         let mut trace = Trace::with_capacity(self.trace_capacity);
         let shared_ctx = self.shares_context.then(|| Arc::new(ctx.clone()));
 
@@ -245,17 +287,20 @@ where
 
         for guard in &self.guards {
             let name = guard.name();
+            let span = GuardSpan::enter(name);
             let started = Instant::now();
             let outcome = self.run(guard, input, ctx, shared_ctx.as_ref());
             let elapsed = started.elapsed();
 
             match outcome {
                 Ok(Verdict::Block { reason }) => {
+                    let decided = Verdict::<Out>::Block {
+                        reason: reason.clone(),
+                    };
+                    span.decided(&decided);
                     trace.record(TraceEntry::new(
                         name,
-                        TraceOutcome::from_verdict(&Verdict::<Out>::Block {
-                            reason: reason.clone(),
-                        }),
+                        TraceOutcome::from_verdict(&decided),
                         elapsed,
                     ));
                     return PipelineResult {
@@ -264,6 +309,7 @@ where
                     };
                 }
                 Ok(decided) => {
+                    span.decided(&decided);
                     trace.record(TraceEntry::new(
                         name,
                         TraceOutcome::from_verdict(&decided),
@@ -274,6 +320,7 @@ where
                     }
                 }
                 Err(error) => {
+                    span.failed(&error);
                     let policy = guard.fail_policy();
                     let resolution = self.resolve(name, &error, policy);
                     let halted = matches!(resolution, Resolution::Halt(_));
@@ -308,7 +355,7 @@ where
         shared_ctx: Option<&Arc<Context>>,
     ) -> Result<Verdict<Out>, GuardError> {
         let Some(budget) = Self::budget(guard.as_ref(), ctx) else {
-            return guard.check(input, ctx);
+            return invoke_check(guard.as_ref(), input, ctx);
         };
 
         if budget.is_zero() {
@@ -326,7 +373,7 @@ where
             // inline and is never abandoned to a detached thread. If it
             // overruns anyway, that is a contract violation, not a timeout.
             let started = Instant::now();
-            let result = guard.check(input, ctx);
+            let result = invoke_check(guard.as_ref(), input, ctx);
             if result.is_ok() && started.elapsed() > budget {
                 return Err(GuardError::DeadlineViolated);
             }
@@ -345,15 +392,14 @@ where
         };
 
         std::thread::spawn(move || {
-            let _ = sender.send(guard.check(&input, &ctx));
+            let _ = sender.send(invoke_check(guard.as_ref(), &input, &ctx));
         });
 
         match receiver.recv_timeout(budget) {
             Ok(result) => result,
             Err(RecvTimeoutError::Timeout) => Err(GuardError::Timeout),
-            // The thread ended without sending — today only by panicking.
-            // Phase 4.5 catches that at the source and reports
-            // `GuardError::Panicked` with the message.
+            // The thread ended without sending. Panics are caught above, so
+            // this is a residual — the worker died some other way.
             Err(RecvTimeoutError::Disconnected) => Err(GuardError::internal(
                 "guard thread ended without returning a verdict",
             )),
@@ -517,6 +563,10 @@ mod tests {
 
     fn fail() -> Result<Verdict<String>, GuardError> {
         Err(GuardError::dependency("classifier unreachable"))
+    }
+
+    fn boom() -> Result<Verdict<String>, GuardError> {
+        panic!("deliberate unit-test panic");
     }
 
     fn input() -> Arc<str> {
@@ -723,6 +773,33 @@ mod tests {
         assert_eq!(result.trace().len(), 4);
         assert_eq!(result.trace().dropped(), 196);
         assert!(!result.trace().is_complete());
+    }
+
+    #[test]
+    fn a_panicking_guard_is_caught_and_does_not_unwind() {
+        let pipeline = Pipeline::new()
+            .with(Scripted::new("volatile", boom).with_policy(FailPolicy::FailOpen))
+            .with(Scripted::new("after", allow));
+
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            pipeline.evaluate(&input(), &Context::new())
+        }));
+        let result = match result {
+            Ok(result) => result,
+            Err(_) => panic!("evaluate must not unwind past the caller"),
+        };
+        assert!(result.is_allow());
+        assert_eq!(result.trace().len(), 2);
+
+        let Some(entry) = result.trace().iter().next() else {
+            panic!("the panicking guard should have been traced");
+        };
+        let TraceOutcome::Failed { error, halted, .. } = entry.outcome() else {
+            panic!("expected a panic failure, got {:?}", entry.outcome());
+        };
+        assert!(error.is_panic());
+        assert_eq!(error.message(), Some("deliberate unit-test panic"));
+        assert!(!*halted);
     }
 
     #[test]

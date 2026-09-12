@@ -12,7 +12,17 @@ categories.workspace = true
 keywords.workspace = true
 readme = "../../README.md"
 
+[features]
+default = []
+# Structured spans/events per guard. Off by default so embedders who do not
+# want a telemetry dependency compile against `std` only.
+tracing = ["dep:tracing"]
+
 [dependencies]
+tracing = { version = "0.1", optional = true }
+
+[dev-dependencies]
+proptest = "1"
 
 [lints]
 workspace = true
