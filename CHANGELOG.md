@@ -12,6 +12,13 @@ critical path can find them without reading every line.
 
 ### Added
 
+- Criterion bench `pipeline` on `wardline-core`: per-guard `evaluate`
+  overhead and the incremental cost of `catch_unwind`. The measured
+  baseline is recorded in `docs/ARCHITECTURE.md` (implementation plan
+  Phase 6).
+- Integration tests: mixed allow / block / modify / panic across the
+  built-in guards, and concurrent `evaluate` on a shared `Pipeline`.
+
 - `wardline-core`: optional `tracing` feature emits a `wardline.evaluate`
   span and a `wardline.guard` span per check, including an error event
   when a guard panics. Off by default — without it the crate still

@@ -64,8 +64,10 @@ project exists. Do not "fix" them without a discussion in an issue first.
 | `examples/axum_middleware/` | Secondary example for teams already on an async framework. |
 | `examples/llm_chat_guard/` | Guard a prompt and reply around a blocking model call. |
 | `examples/observability/` | `tracing` spans and `Metrics` counters, including a caught panic. |
+| `crates/wardline-core/benches/pipeline.rs` | Criterion: per-guard `evaluate` cost and `catch_unwind` overhead. Baseline numbers live in `docs/ARCHITECTURE.md`. |
 | `fuzz/` | `cargo-fuzz` targets for the pipeline executor. Run manually/periodically, not gating every PR. |
-| `tests/integration/` | Cross-crate behavior tests, especially fail-policy, timeout, and panic-isolation edge cases. |
+| `crates/wardline-core/tests/` | Pipeline integration tests (short-circuit, fail-policy, timeout, panic isolation, concurrency). |
+| `crates/wardline-guards/tests/` | Cross-guard pipelines mixing the built-in implementations. |
 | `docs/RESEARCH.md` | Why this project exists, prior art, honest limitations. Update if positioning changes. |
 | `docs/ARCHITECTURE.md` | Design rationale for fail-policy/timeout/panic-isolation decisions. |
 | `docs/RELIABILITY.md` | The explicit reliability contract — what's guaranteed, what isn't, and the test backing each guarantee. |
