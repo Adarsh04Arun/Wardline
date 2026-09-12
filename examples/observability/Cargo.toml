@@ -1,0 +1,16 @@
+[package]
+name = "observability"
+description = "Wardline tracing spans and per-guard metrics, including a caught panic."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+wardline-core = { workspace = true, features = ["tracing"] }
+
+[lints]
+workspace = true

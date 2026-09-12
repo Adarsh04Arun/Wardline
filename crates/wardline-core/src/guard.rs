@@ -20,8 +20,7 @@ use std::time::Duration;
 /// # Bounds
 ///
 /// `Send + Sync` let one pipeline serve many threads. [`RefUnwindSafe`] is
-/// required by the pipeline's [`catch_unwind`]; it is here from the start so
-/// panic isolation isn't a breaking change later. Interior mutability that
+/// required by the pipeline's [`catch_unwind`]. Interior mutability that
 /// fails the bound can be wrapped in [`AssertUnwindSafe`] — once you're
 /// satisfied a mid-check panic can't leave it observably broken.
 ///

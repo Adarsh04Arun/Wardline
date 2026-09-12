@@ -16,6 +16,7 @@
 //! | [`Deadline`] | A cooperative wall-clock bound. |
 //! | [`Pipeline`] | An ordered list of guards, run in place. |
 //! | [`Trace`] | The bounded record of what each guard did. |
+//! | [`Metrics`] | Optional per-guard counters (allow/block/error/panic). |
 //!
 //! The key distinction: [`Verdict::Block`] means the guard said *no*;
 //! [`GuardError`] means it said *nothing*. Failures are resolved by the
@@ -25,8 +26,14 @@
 //!
 //! [`Pipeline::evaluate`] runs guards in order, stops at the first block, and
 //! returns the decision together with its [`Trace`] — so a caller can log
-//! *why* something was refused, not just that it was. This crate depends on
-//! nothing outside `std`; see `AGENTS.md` for the architectural invariants.
+//! *why* something was refused, not just that it was. A panic inside a guard
+//! becomes [`GuardError::Panicked`] and is resolved through that guard's
+//! [`FailPolicy`]; it never unwinds past the caller.
+//!
+//! Enable the `tracing` feature to emit a `wardline.evaluate` span and a
+//! `wardline.guard` span per check, including an error event when a guard
+//! panics. Without that feature this crate still depends on nothing outside
+//! `std`. See `AGENTS.md` for the architectural invariants.
 //!
 //! # Example
 //!
@@ -63,6 +70,8 @@ mod context;
 mod deadline;
 mod error;
 mod guard;
+mod metrics;
+mod observe;
 mod pipeline;
 mod policy;
 mod trace;
@@ -72,6 +81,7 @@ pub use context::{Context, Value};
 pub use deadline::Deadline;
 pub use error::GuardError;
 pub use guard::Guard;
+pub use metrics::{GuardCounters, InMemoryMetrics, Metrics};
 pub use pipeline::{Pipeline, PipelineResult};
 pub use policy::FailPolicy;
 pub use trace::{Trace, TraceEntry, TraceOutcome};
@@ -82,9 +92,9 @@ mod tests {
     use super::*;
     use std::panic::RefUnwindSafe;
 
-    /// The pipeline borrows a `Context` across a `catch_unwind` boundary
-    /// (Phase 4.5). Asserting the bound here means a future field breaks this
-    /// test rather than the pipeline.
+    /// The pipeline borrows a `Context` across a `catch_unwind` boundary.
+    /// Asserting the bound here means a future field breaks this test rather
+    /// than the pipeline.
     #[test]
     fn context_survives_the_catch_unwind_boundary() {
         fn assert_unwind_safe<T: RefUnwindSafe>() {}

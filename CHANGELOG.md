@@ -12,6 +12,18 @@ critical path can find them without reading every line.
 
 ### Added
 
+- `wardline-core`: optional `tracing` feature emits a `wardline.evaluate`
+  span and a `wardline.guard` span per check, including an error event
+  when a guard panics. Off by default — without it the crate still
+  depends on nothing outside `std` (implementation plan Phase 5).
+- `wardline-core`: `Metrics` trait (allow / block / modify / error /
+  panic per guard), plus `InMemoryMetrics` and `Trace::emit_metrics` so
+  a caller can feed Prometheus or StatsD without Wardline picking a
+  backend.
+- Example: `observability` — `cargo run -p observability` prints
+  structured spans and counters for an allow, a caught panic, and a
+  block.
+
 - `wardline-http`: `tower::Layer` that buffers a request body and runs a
   Wardline pipeline synchronously inside axum. This crate is the one
   deliberate async boundary; evaluation itself is still blocking
@@ -44,6 +56,19 @@ critical path can find them without reading every line.
 
 ### Reliability
 
+- Every `Guard::check` runs inside `catch_unwind`. A panic becomes
+  `GuardError::Panicked` and is resolved through that guard's
+  `fail_policy()` — it cannot unwind past `Pipeline::evaluate`
+  (implementation plan Phase 4.5).
+- `docs/RELIABILITY.md` is the contract: every "Guaranteed" line names
+  the test that proves it.
+- `.github/workflows/audit.yml` runs `cargo deny check` and `cargo audit`
+  on every PR and weekly. `deny.toml` pins the license and advisory
+  policy.
+- A `cargo-fuzz` target (`fuzz/fuzz_targets/pipeline_fuzz.rs`) exercises
+  pipeline construction against arbitrary guard behaviour. It is its own
+  workspace and is not PR-gating.
+
 - A guard that declares a `timeout()` is bounded by it: the pipeline stops
   waiting and reports `GuardError::Timeout`. This bounds the *caller's* wait,
   not the guard — abandoned work keeps running on its own thread. A `strict()`
@@ -58,8 +83,8 @@ critical path can find them without reading every line.
 - `FailPolicy::FailClosed` is the default for every guard, and a guard's
   failure is resolved by its own policy — the pipeline will never apply a
   workspace-wide default silently.
-- `Guard` carries a `RefUnwindSafe` bound from its first release, so adding
-  `catch_unwind` panic isolation in Phase 4.5 is not a breaking change.
+- `Guard` carries a `RefUnwindSafe` bound so `catch_unwind` panic
+  isolation is not a breaking change.
 - `GuardError` is `#[non_exhaustive]`, so new failure modes can be added
   without a major bump. Match with a wildcard arm.
 

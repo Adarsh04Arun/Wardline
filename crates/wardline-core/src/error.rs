@@ -55,6 +55,14 @@ pub enum GuardError {
 }
 
 impl GuardError {
+    /// Builds a [`GuardError::Panicked`] from anything string-like.
+    ///
+    /// Prefer letting the pipeline produce this. Guard authors should return
+    /// [`GuardError::Internal`] for deliberate failures.
+    pub fn panicked(message: impl Into<String>) -> Self {
+        GuardError::Panicked(message.into())
+    }
+
     /// Builds a [`GuardError::Internal`] from anything string-like.
     pub fn internal(message: impl Into<String>) -> Self {
         GuardError::Internal(message.into())
