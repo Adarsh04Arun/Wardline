@@ -5,10 +5,10 @@
 [![CI](https://github.com/adarsh4arun/wardline/actions/workflows/ci.yml/badge.svg)](https://github.com/adarsh4arun/wardline/actions/workflows/ci.yml)
 [![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](#license)
 
-> **Status: pre-alpha, Phase 5.** Core types, the pipeline, built-in
-> guards, HTTP/LLM adapters, panic isolation, and optional tracing/metrics
-> are in place. Not published to crates.io. Follow
-> `docs/IMPLEMENTATION_PLAN.md` for what lands when.
+> **Status: pre-alpha, Phase 6.** Core types, the pipeline, built-in
+> guards, HTTP/LLM adapters, panic isolation, optional tracing/metrics,
+> and measured pipeline overhead are in place. Not published to crates.io.
+> Follow `docs/IMPLEMENTATION_PLAN.md` for what lands when.
 
 Guards run **inline in your request path** — before an action is taken or an
 LLM response is released — and return a blocking verdict: allow, block, or
@@ -54,7 +54,8 @@ request ──▶ Pipeline::evaluate() ──▶ Verdict::Allow  ──▶ actio
   that backs each guarantee
 - `AGENTS.md` — conventions and architectural invariants for contributors
   (human or AI)
-- `docs/ARCHITECTURE.md` — lands in a later phase
+- `docs/ARCHITECTURE.md` — fail-policy, timeout, and panic-isolation
+  rationale, plus the checked-in criterion baseline
 
 ## Quickstart
 
@@ -79,6 +80,7 @@ cargo build --workspace
 cargo test --workspace --all-features
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo fmt --all --check
+cargo bench -p wardline-core --bench pipeline
 cargo deny check
 cargo audit
 ```
