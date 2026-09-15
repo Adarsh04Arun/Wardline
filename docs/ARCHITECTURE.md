@@ -1,8 +1,12 @@
 # Architecture
 
-Why the pipeline looks the way it does. The reliability *contract* lives
-in [`RELIABILITY.md`](RELIABILITY.md); this file is the design rationale
-behind those promises, plus the measured cost of keeping them.
+Why the pipeline looks the way it does. Usage and the five-minute
+quickstart live in the [README](../README.md). The reliability *contract*
+lives in [`RELIABILITY.md`](RELIABILITY.md); this file is the design
+rationale behind those promises, plus the measured cost of keeping them.
+
+The timeout section below is the one people misread: a non-strict
+timeout bounds the *caller's wait*. It does not cancel the guard.
 
 ## The shape
 

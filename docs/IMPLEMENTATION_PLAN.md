@@ -1,5 +1,7 @@
 # Implementation Plan — Wardline
 
+**Status:** Phases 0–7 are in the tree. Phase 8 is crates.io / tag `v0.1.0`.
+
 A synchronous, embeddable, trait-based guardrail evaluation library in Rust.
 Guards run inline in the caller's request path — before an action or LLM
 response is released — and return a blocking verdict (allow / block / modify).
@@ -304,6 +306,10 @@ a real sink, not just an in-memory buffer.
 1. `README.md`: what it is, what it isn't (see `docs/RESEARCH.md` positioning and `docs/RELIABILITY.md` guarantees), quickstart (the `sync_http_server` example, abbreviated), link to full docs.
 2. `docs/ARCHITECTURE.md`: write up the fail-policy, timeout, and panic-isolation design decisions from this conversation, including the honest caveat about non-strict thread-based timeouts not being true cancellation.
 3. Ensure `cargo doc` builds cleanly with no warnings and every public item is documented (`#![deny(missing_docs)]` should already be forcing this from Phase 1 — verify it's holding).
+
+**Status (this tree):** README quickstart, `docs/ARCHITECTURE.md`, and
+`#![deny(missing_docs)]` are in place. Verify with
+`cargo doc --workspace --no-deps --all-features` (RUSTDOCFLAGS=`-D warnings`).
 
 **Acceptance criteria:**
 - A newcomer can go from `git clone` to a running example in under 5 minutes following only the README

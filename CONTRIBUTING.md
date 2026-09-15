@@ -12,8 +12,9 @@ for architectural reasons.
   boundary, fail-closed by default, always produce a trace). These apply to
   human and AI contributors equally.
 - Read [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) and check
-  which phase is active. Work that belongs to a later phase is usually better
-  filed as an issue than sent as a PR.
+  which phase is active (Phase 8 is the remaining release work). Work that
+  belongs to a later phase is usually better filed as an issue than sent as
+  a PR.
 - Read [`docs/RESEARCH.md`](docs/RESEARCH.md) for what this project is
   deliberately *not* trying to be.
 
