@@ -12,6 +12,9 @@ critical path can find them without reading every line.
 
 ### Added
 
+- README: clone → `cargo run -p sync_http_server` is the documented first
+  path, with the expected allow/block output and a git-dependency snippet
+  (implementation plan Phase 7).
 - Criterion bench `pipeline` on `wardline-core`: per-guard `evaluate`
   overhead and the incremental cost of `catch_unwind`. The measured
   baseline is recorded in `docs/ARCHITECTURE.md` (implementation plan
