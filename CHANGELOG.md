@@ -10,8 +10,24 @@ critical path can find them without reading every line.
 
 ## [Unreleased]
 
+## [0.1.0] — 2026-09-15
+
+First tagged release. Crate names `wardline-core`, `wardline-guards`,
+`wardline-http`, and `wardline-llm` were unused on crates.io at cut time.
+Publishing is the tag-triggered `.github/workflows/release.yml` job and
+needs a `CARGO_REGISTRY_TOKEN` repository secret.
+
+### Security
+
+- Lockfile: `rustls` 0.23.43 → 0.23.45 ([RUSTSEC-2026-0285](https://rustsec.org/advisories/RUSTSEC-2026-0285)).
+  The crate is pulled by the `llm_chat_guard` example via `reqwest`, not
+  by `wardline-core` or `wardline-guards`.
+
 ### Added
 
+- `.github/workflows/release.yml`: `v*` tags run fmt/clippy/test/rustdoc,
+  open a GitHub Release, and publish the four library crates in
+  dependency order (implementation plan Phase 8).
 - README: clone → `cargo run -p sync_http_server` is the documented first
   path, with the expected allow/block output and a git-dependency snippet
   (implementation plan Phase 7).
@@ -103,4 +119,5 @@ critical path can find them without reading every line.
   docs, and a CI workflow running fmt, clippy, test, MSRV, and rustdoc
   (implementation plan Phase 0).
 
-[Unreleased]: https://github.com/Adarsh04Arun/Wardline/compare/HEAD...HEAD
+[Unreleased]: https://github.com/Adarsh04Arun/Wardline/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/Adarsh04Arun/Wardline/releases/tag/v0.1.0

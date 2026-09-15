@@ -72,6 +72,7 @@ project exists. Do not "fix" them without a discussion in an issue first.
 | `docs/ARCHITECTURE.md` | Design rationale for fail-policy/timeout/panic-isolation decisions. |
 | `docs/RELIABILITY.md` | The explicit reliability contract — what's guaranteed, what isn't, and the test backing each guarantee. |
 | `docs/IMPLEMENTATION_PLAN.md` | Phased build plan — check which phase is active before adding scope. |
+| `.github/workflows/release.yml` | Tag `v*` → GitHub Release and crates.io publish (needs `CARGO_REGISTRY_TOKEN`). |
 | `docs/PAPER_TITLES.md` | Curated taxonomy of IEEE paper titles and venue recommendations. |
 | `docs/IEEE_RESEARCH_PAPER.md` | Primary manuscript (Systems & Guardrail Trilemma perspective). |
 | `docs/IEEE_RESEARCH_PAPER_V2.md` | Secondary manuscript (Formal Methods, Pre-Action Invariants & Safety Shields perspective). |
@@ -123,4 +124,6 @@ move something, update this file in the same change.
   mechanisms described in `docs/ARCHITECTURE.md` and `docs/RELIABILITY.md`.
 - Weakening a "Guaranteed" claim in `docs/RELIABILITY.md`, or adding a new
   one without the test that proves it.
-- Publishing to crates.io (Phase 8 is a deliberate, human-triggered step).
+- Publishing to crates.io by hand. The path is a `v*` tag, which runs
+  `.github/workflows/release.yml`. That job no-ops publish unless the
+  `CARGO_REGISTRY_TOKEN` repository secret is set.

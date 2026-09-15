@@ -11,10 +11,8 @@ for architectural reasons.
   invariants** (no async runtime in the core, panics isolated at the pipeline
   boundary, fail-closed by default, always produce a trace). These apply to
   human and AI contributors equally.
-- Read [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) and check
-  which phase is active (Phase 8 is the remaining release work). Work that
-  belongs to a later phase is usually better filed as an issue than sent as
-  a PR.
+- Read [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md). The
+  phased build is complete; new work is better filed as an issue first.
 - Read [`docs/RESEARCH.md`](docs/RESEARCH.md) for what this project is
   deliberately *not* trying to be.
 
@@ -49,7 +47,8 @@ Before marking a PR ready for review:
       declared `fail_policy()`
 - [ ] Changes to `pipeline.rs` have an integration test under
       `crates/wardline-core/tests/`
-- [ ] `CHANGELOG.md` updated under `Unreleased` for user-facing changes
+- [ ] `CHANGELOG.md` updated under `Unreleased` (or the next version heading)
+      for user-facing changes
 - [ ] The PR description names the implementation-plan phase it belongs to
 
 ## Things that need a discussion first
