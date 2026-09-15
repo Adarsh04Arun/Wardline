@@ -1,6 +1,6 @@
 # Implementation Plan — Wardline
 
-**Status:** Phases 0–7 are in the tree. Phase 8 is crates.io / tag `v0.1.0`.
+**Status:** Phases 0–8 are in the tree. Tag `v0.1.0` is the crates.io cut.
 
 A synchronous, embeddable, trait-based guardrail evaluation library in Rust.
 Guards run inline in the caller's request path — before an action or LLM
@@ -326,6 +326,11 @@ a real sink, not just an in-memory buffer.
 3. Write `CHANGELOG.md` starting at `0.1.0`.
 4. Final pass: `cargo clippy --workspace -- -D warnings`, `cargo fmt --check`, `cargo test --workspace`, `cargo doc --workspace --no-deps`, `cargo deny check`, `cargo audit`.
 5. Tag `v0.1.0`, publish.
+
+**Status (this tree):** crate names re-checked unused on crates.io (2026-09-15).
+`release.yml` publishes `wardline-core`, then `wardline-guards`,
+`wardline-http`, and `wardline-llm` on `v*` tags when
+`CARGO_REGISTRY_TOKEN` is set. `CHANGELOG.md` starts at `0.1.0`.
 
 **Acceptance criteria:**
 - Fresh clone + `cargo build --workspace` + `cargo test --workspace` succeed with no local state assumptions
