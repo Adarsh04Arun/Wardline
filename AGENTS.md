@@ -73,6 +73,8 @@ project exists. Do not "fix" them without a discussion in an issue first.
 | `docs/RELIABILITY.md` | The explicit reliability contract — what's guaranteed, what isn't, and the test backing each guarantee. |
 | `docs/IMPLEMENTATION_PLAN.md` | Phased build plan — check which phase is active before adding scope. |
 | `.github/workflows/release.yml` | Tag `v*` → GitHub Release and crates.io publish (needs `CARGO_REGISTRY_TOKEN`). |
+| `video/` | Remotion source for the product video (Node, not part of the Cargo workspace). `npm run render` / `render:gif` write to `docs/assets/`. |
+| `docs/assets/` | Rendered media for the README (`wardline-promo.mp4`, `wardline-promo.gif`). |
 | `docs/PAPER_TITLES.md` | Curated taxonomy of IEEE paper titles and venue recommendations. |
 | `docs/IEEE_RESEARCH_PAPER.md` | Primary manuscript (Systems & Guardrail Trilemma perspective). |
 | `docs/IEEE_RESEARCH_PAPER_V2.md` | Secondary manuscript (Formal Methods, Pre-Action Invariants & Safety Shields perspective). |
