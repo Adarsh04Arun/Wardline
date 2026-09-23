@@ -1,0 +1,21 @@
+{
+  "name": "wardline-video",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Remotion source for the Wardline product video",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render WardlinePromo ../docs/assets/wardline-promo.mp4",
+    "render:gif": "remotion render WardlinePromo ../docs/assets/wardline-promo.gif --codec=gif --scale=0.5 --every-nth-frame=2"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "typescript": "^5.5.0"
+  }
+}
