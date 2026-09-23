@@ -15,10 +15,8 @@ request ──▶ Pipeline::evaluate() ──▶ Verdict::Allow  ──▶ actio
                     └──────────────▶ Verdict::Block  ──▶ action never happens
 ```
 
-> **0.1.0.** Use a git dependency on tag `v0.1.0` until the release
-> workflow has published to crates.io (needs the `CARGO_REGISTRY_TOKEN`
-> repository secret). All phases in `docs/IMPLEMENTATION_PLAN.md` are in
-> the tree.
+> **0.1.0** is on [crates.io](https://crates.io/crates/wardline-core).
+> All phases in `docs/IMPLEMENTATION_PLAN.md` are in the tree.
 
 ## Quickstart (clone to a running example)
 
@@ -62,14 +60,15 @@ fired.
 
 ## Use it in your crate
 
-Pin the `v0.1.0` tag. After crates.io publish you can switch to version
-deps (`wardline-core = "0.1.0"`).
-
 ```toml
 [dependencies]
-wardline-core = { git = "https://github.com/Adarsh04Arun/Wardline", tag = "v0.1.0" }
-wardline-guards = { git = "https://github.com/Adarsh04Arun/Wardline", tag = "v0.1.0" }
+wardline-core = "0.1.0"
+wardline-guards = "0.1.0"
 ```
+
+Optional adapters: `wardline-http` (axum/tower) and `wardline-llm`
+(blocking model call wrapper). Prefer crates.io versions; a git pin on
+tag `v0.1.0` still works if you need a source checkout.
 
 ```rust
 use std::sync::Arc;
